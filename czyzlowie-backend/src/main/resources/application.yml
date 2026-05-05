@@ -1,0 +1,58 @@
+spring:
+  application:
+    name: czyzlowie
+
+  config:
+    import: optional:classpath:application-secrets.yml
+
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/mydatabase}
+    username: ${SPRING_DATASOURCE_USERNAME:myuser}
+    password: ${SPRING_DATASOURCE_PASSWORD:secret}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+  liquibase:
+    change-log: classpath:/db/changelog/db.changelog-master.xml
+
+  docker:
+    compose:
+      enabled: false
+
+  mail:
+    host: ssl0.ovh.net
+    port: 587
+    username: "kontakt@czyzlowie.pl"
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+        debug: true
+
+application:
+  security:
+    jwt:
+      secret-key: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
+      expiration: 900000 # 15 minutes (ms)
+      refresh-token:
+        expiration: 604800000 # 7 days (ms)
+    verification-token:
+      expiration: 86400000 # 24 hours (ms)
+  email:
+    from: ${EMAIL_FROM:kontakt@czyzlowie.pl}
+
+resilience4j:
+  ratelimiter:
+    instances:
+      authRateLimiter:
+        limit-for-period: 20
+        limit-refresh-period: 1m
+        timeout-duration: 0s
+

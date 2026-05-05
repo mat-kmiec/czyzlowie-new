@@ -1,0 +1,12 @@
+# Local Development Profile - NEVER COMMIT THIS FILE!
+spring:
+  mail:
+    password: Qrhz6C37PMxVw1re
+
+logging:
+  level:
+    org.springframework.mail: DEBUG
+    pl.czyzlowie: DEBUG
+
+
+

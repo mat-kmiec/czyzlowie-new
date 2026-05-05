@@ -1,0 +1,23 @@
+package pl.czyzlowie.module.auth.repository;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+import pl.czyzlowie.module.auth.model.RefreshToken;
+
+import java.time.Instant;
+import java.util.Optional;
+
+@Repository
+public interface RefreshTokenRepository extends JpaRepository<RefreshToken, Long> {
+    Optional<RefreshToken> findByToken(String token);
+
+    @Modifying
+    void deleteByToken(String token);
+
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM RefreshToken rt WHERE rt.expiryDate < :now")
+    void deleteAllExpiredTokens(Instant now);}
