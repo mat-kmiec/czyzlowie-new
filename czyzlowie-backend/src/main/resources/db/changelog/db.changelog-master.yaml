@@ -1,8 +1,0 @@
-databaseChangeLog:
-  - changeSet:
-      id: 1
-      author: setup
-      changes:
-        - sql:
-            sql: "SELECT 1"
-
