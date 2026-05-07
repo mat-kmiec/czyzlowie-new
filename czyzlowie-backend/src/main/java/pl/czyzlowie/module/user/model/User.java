@@ -5,6 +5,9 @@ import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import pl.czyzlowie.module.auth.model.PasswordResetToken;
+import pl.czyzlowie.module.auth.model.RefreshToken;
+import pl.czyzlowie.module.auth.model.VerificationToken;
 
 import java.util.Collection;
 import java.util.List;
@@ -14,25 +17,46 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "_user")
+@Table(name = "_user", indexes = {
+    @Index(name = "idx_user_email", columnList = "email")
+})
 public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false, length = 50)
     private String nickname;
-    
-    @Column(unique = true)
+
+    @Column(unique = true, nullable = false, length = 100)
     private String email;
+
+    @Column(nullable = false)
     private String password;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
     private Role role;
 
     @Column(nullable = false)
     @Builder.Default
     private Boolean isVerified = false;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private List<RefreshToken> refreshTokens;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private VerificationToken verificationToken;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private List<PasswordResetToken> passwordResetTokens;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

@@ -37,16 +37,19 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(BadCredentialsException.class)
     public ProblemDetail handleBadCredentialsException(BadCredentialsException ex) {
-        return createProblemDetail(HttpStatus.UNAUTHORIZED, "Invalid verify or password", "Authentication Failed");
+        return createProblemDetail(HttpStatus.UNAUTHORIZED, "Invalid email or password", "Authentication Failed");
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ProblemDetail handleValidationExceptions(MethodArgumentNotValidException ex) {
-        ProblemDetail problemDetail = createProblemDetail(HttpStatus.BAD_REQUEST, "Validation Failed", "Invalid Input Data");
+        ProblemDetail problemDetail = createProblemDetail(HttpStatus.BAD_REQUEST, "Validation failed", "Invalid Input Data");
 
         Map<String, String> errors = new HashMap<>();
         ex.getBindingResult().getFieldErrors().forEach(error ->
             errors.put(error.getField(), error.getDefaultMessage())
+        );
+        ex.getBindingResult().getGlobalErrors().forEach(error ->
+            errors.put(error.getObjectName(), error.getDefaultMessage())
         );
         problemDetail.setProperty("errors", errors);
 
@@ -55,7 +58,9 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ProblemDetail handleGenericException(Exception ex) {
-        return createProblemDetail(HttpStatus.INTERNAL_SERVER_ERROR, "An unexpected error occurred", "Internal Server Error");
+        // Log the exception for debugging
+        ex.printStackTrace();
+        return createProblemDetail(HttpStatus.INTERNAL_SERVER_ERROR, "An unexpected error occurred. Please contact support if the issue persists.", "Internal Server Error");
     }
 
     private ProblemDetail createProblemDetail(HttpStatus status, String detail, String title) {

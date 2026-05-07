@@ -45,6 +45,8 @@ application:
         expiration: 604800000 # 7 days (ms)
     verification-token:
       expiration: 86400000 # 24 hours (ms)
+    password-reset-token:
+      expiration: 3600000 # 1 hour (ms)
   email:
     from: ${EMAIL_FROM:kontakt@czyzlowie.pl}
 
@@ -55,4 +57,12 @@ resilience4j:
         limit-for-period: 20
         limit-refresh-period: 1m
         timeout-duration: 0s
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+
 

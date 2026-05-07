@@ -54,13 +54,13 @@ public class EmailService {
         sendTemplatedEmail(toEmail, "Email Verification - Czyzlowie", templateVariables);
     }
 
-    public void sendPasswordResetEmail(String toEmail, String resetLink, String firstName) {
+    public void sendPasswordResetEmail(String toEmail, String resetCode, String nickname) {
         Map<String, Object> templateVariables = Map.of(
                 "subject", "Resetowanie hasła - Czyzlowie.pl",
-                "name", firstName,
-                "message", "Otrzymaliśmy prośbę o zresetowanie hasła do Twojego konta. Kliknij poniższy przycisk, aby ustawić nowe hasło.",
-                "actionUrl", resetLink,
-                "actionText", "Zresetuj hasło"
+                "name", nickname,
+                "message", "Otrzymaliśmy prośbę o zresetowanie hasła do Twojego konta.<br>Użyj poniższego kodu, aby ustawić nowe hasło:",
+                "code", resetCode,
+                "disclaimer", "Ten kod wygaśnie za 1 godzinę. Jeśli to nie Ty złożyłeś tę prośbę, zignoruj tego maila."
         );
 
         sendTemplatedEmail(toEmail, "Resetowanie hasła - Czyzlowie", templateVariables);
