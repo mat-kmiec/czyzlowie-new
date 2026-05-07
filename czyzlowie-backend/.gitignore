@@ -31,3 +31,11 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Local Configuration with Sensitive Data ###
+application-local.yml
+application-local.properties
+.env
+.env.local
+
+
