@@ -1,10 +1,13 @@
 package pl.czyzlowie.module.auth.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import pl.czyzlowie.module.auth.dto.request.ForgotPasswordRequest;
+import pl.czyzlowie.module.auth.dto.request.ResetPasswordRequest;
 import pl.czyzlowie.module.auth.dto.response.AuthResponse;
 import pl.czyzlowie.module.auth.dto.request.LoginRequest;
 import pl.czyzlowie.module.auth.dto.request.RegisterRequest;
@@ -31,7 +34,11 @@ public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
     private final RefreshTokenService refreshTokenService;
     private final VerificationTokenService verificationTokenService;
+    private final PasswordResetTokenService passwordResetTokenService;
     private final EmailService emailService;
+
+    @Value("${application.security.jwt.expiration}")
+    private long jwtExpiration;
 
     /** Register new user.
      * @param request RegisterRequest
@@ -84,17 +91,19 @@ public class AuthenticationService {
         );
         var user = repository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
-        
+
         if (!user.getIsVerified()) {
             throw new UserNotFoundException("Email not verified. Please verify your email first.");
         }
-                
+
         var jwtToken = jwtService.generateToken(user);
         var refreshToken = refreshTokenService.createRefreshToken(user.getId());
-        
+
         return AuthResponse.builder()
                 .accessToken(jwtToken)
                 .refreshToken(refreshToken.getToken())
+                .tokenType("Bearer")
+                .expiresIn(jwtExpiration)
                 .build();
     }
 
@@ -114,8 +123,52 @@ public class AuthenticationService {
                     return AuthResponse.builder()
                             .accessToken(token)
                             .refreshToken(requestRefreshToken)
+                            .tokenType("Bearer")
+                            .expiresIn(jwtExpiration)
                             .build();
                 })
                 .orElseThrow(() -> new TokenRefreshException("Refresh token is not in database!"));
+    }
+
+    /** Request password reset.
+     * @param request ForgotPasswordRequest
+     * @return success message
+     * @throws UserNotFoundException if user is not found
+     */
+    public String forgotPassword(ForgotPasswordRequest request) {
+        var user = repository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new UserNotFoundException("User not found with email: " + request.getEmail()));
+
+        var resetToken = passwordResetTokenService.createPasswordResetToken(user.getId());
+
+        emailService.sendPasswordResetEmail(user.getEmail(), resetToken.getToken(), user.getNickname());
+
+        return "Password reset code has been sent to your email address.";
+    }
+
+    /** Reset password with code.
+     * @param request ResetPasswordRequest
+     * @return success message
+     * @throws UserNotFoundException if user is not found
+     * @throws TokenRefreshException if reset code is invalid or expired
+     */
+    public String resetPassword(ResetPasswordRequest request) {
+        var user = repository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new UserNotFoundException("User not found with email: " + request.getEmail()));
+
+        var resetToken = passwordResetTokenService.verifyToken(user.getId(), request.getResetCode());
+
+        // Update password
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        repository.save(user);
+
+        // Delete the used token
+        passwordResetTokenService.deleteToken(resetToken.getId());
+
+        // Delete all refresh tokens to force re-login
+        refreshTokenService.findByToken(user.getId().toString())
+                .ifPresent(token -> refreshTokenService.deleteByToken(token.getToken()));
+
+        return "Password has been reset successfully. Please login with your new password.";
     }
 }
