@@ -64,5 +64,17 @@ springdoc:
   swagger-ui:
     path: /swagger-ui.html
     enabled: true
+imgw:
+  api:
+    synop:
+      url: "https://danepubliczne.imgw.pl/api/data/synop"
+      cron: "0 5 * * * *" # Co godzinę, 5 minut po pełnej
+    meteo:
+      url: "https://danepubliczne.imgw.pl/api/data/meteo"
+      cron: "0 10,40 * * * *" # Dwa razy na godzinę (10 i 40 po)
+    hydro:
+      url: "https://danepubliczne.imgw.pl/api/data/hydro"
+      cron: "0 15,45 * * * *" # Dwa razy na godzinę (15 i 45 po)
+
 
 
