@@ -1,22 +1,22 @@
 -- liquibase formatted sql
 
--- changeset create_imgw_meteo_station
+-- changeset author:create_imgw_meteo_station
 CREATE TABLE imgw_meteo_station (
-    station_id VARCHAR(15) NOT NULL,
-    station_name VARCHAR(255) NOT NULL,
-    longitude DOUBLE PRECISION,
-    latitude DOUBLE PRECISION,
-    is_active BOOLEAN DEFAULT TRUE,
-    CONSTRAINT pk_imgw_meteo_station PRIMARY KEY (station_id)
+                                    station_id VARCHAR(15) NOT NULL,
+                                    station_name VARCHAR(255) NOT NULL,
+                                    longitude DOUBLE PRECISION,
+                                    latitude DOUBLE PRECISION,
+                                    is_active BOOLEAN DEFAULT TRUE,
+                                    CONSTRAINT pk_imgw_meteo_station PRIMARY KEY (station_id)
 );
 
--- changeset create_imgw_meteo_data
+-- changeset author:create_imgw_meteo_data
 CREATE TABLE imgw_meteo_data
 (
     station_id               VARCHAR(15) NOT NULL,
-    measurement_date_time         TIMESTAMP   NOT NULL,
+    measurement_date_time    TIMESTAMP   NOT NULL,
     ground_temperature       DOUBLE PRECISION,
-    ground_temperature_date TIMESTAMP,
+    ground_temperature_date  TIMESTAMP,
     air_temperature          DOUBLE PRECISION,
     air_temperature_date     TIMESTAMP,
     wind_direction           INTEGER,
@@ -36,6 +36,6 @@ CREATE TABLE imgw_meteo_data
         REFERENCES imgw_meteo_station (station_id) ON DELETE CASCADE
 );
 
--- changeset create index for imgw_meteo_data
+-- changeset author:create_index_for_imgw_meteo_data
 CREATE INDEX idx_meteo_data_measurement_time ON imgw_meteo_data (measurement_date_time);
 CREATE INDEX idx_meteo_data_air_temperature ON imgw_meteo_data (air_temperature);

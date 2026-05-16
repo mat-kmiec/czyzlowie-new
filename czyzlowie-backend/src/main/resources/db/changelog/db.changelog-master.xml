@@ -7,5 +7,10 @@
     <!-- Include your SQL changelogs here -->
     <include file="changes/001-initial.sql" relativeToChangelogFile="true"/>
     <include file="changes/002-imgw-synop.sql" relativeToChangelogFile="true"/>
+    <include file="changes/003-imgw-meteo.sql" relativeToChangelogFile="true"/>
+    <include file="changes/004-imgw-hydro.sql" relativeToChangelogFile="true"/>
+    <include file="changes/005-virtual-synop.sql" relativeToChangelogFile="true"/>
+    <include file="changes/006-imgw-warnings.sql" relativeToChangelogFile="true"/>
+
 
 </databaseChangeLog>

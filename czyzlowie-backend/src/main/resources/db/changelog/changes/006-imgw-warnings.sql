@@ -1,6 +1,6 @@
 -- liquibase formatted sql
 
--- changeset author:create_warnings_meteo
+-- changeset system:imgw-warnings-001
 CREATE TABLE imgw_meteo_warning
 (
     warning_id   VARCHAR(50)  NOT NULL,
